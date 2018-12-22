@@ -19,6 +19,7 @@ const classTypes = {
   autoMotionTrackingSwitch: DafangAccessory.AutoMotionTrackingSwitch,
   nightVisionSensor: DafangAccessory.NightVisionSensor,
   nightVisionSwitch: DafangAccessory.NightVisionSwitch,
+  customNightVisionSwitch: DafangAccessory.CustomNightVisionSwitch,
   autoNightVisionSwitch: DafangAccessory.AutoNightVisionSwitch,
   intercom: DafangAccessory.Intercom,
   moveCamera: DafangAccessory.CameraMotor,

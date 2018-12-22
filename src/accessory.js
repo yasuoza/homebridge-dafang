@@ -12,6 +12,7 @@ const MotionSensorAccessory = require('./accessories/motionSensor')
 const AutoMotionTrackingSwitchAccessory = require('./accessories/autoMotionTrackingSwitch')
 const NightVisionSensorAccessory = require('./accessories/nightVisionSensor')
 const NightVisionSwitchAccessory = require('./accessories/nightVisionSwitch')
+const CustomNightVisionSwitchAccessory = require('./accessories/customNightVisionSwitch')
 const AutoNightVisionSwitchAccessory = require('./accessories/autoNightVisionSwitch')
 const IntercomAccessory = require('./accessories/intercom')
 const CameraMotorAccessory = require('./accessories/moveCamera')
@@ -38,6 +39,7 @@ module.exports = {
   AutoMotionTrackingSwitch: AutoMotionTrackingSwitchAccessory,
   NightVisionSensor: NightVisionSensorAccessory,
   NightVisionSwitch: NightVisionSwitchAccessory,
+  CustomNightVisionSwitch: CustomNightVisionSwitchAccessory,
   AutoNightVisionSwitch: AutoNightVisionSwitchAccessory,
   Intercom: IntercomAccessory,
   CameraMotor: CameraMotorAccessory,
