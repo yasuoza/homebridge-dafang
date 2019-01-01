@@ -26,7 +26,7 @@ const ResetFFMPEGSwitch = class extends Accessory {
   switchStateChanged(newState, callback) {
     this.log('Killing all FFMPEG Processes')
     const self = this
-    var killCommand = cp.spawn('pkill', ['-9', 'ffmpeg'], { detached: false, stdio: 'ignore' })
+    var killCommand = cp.spawn('pkill', ['-SIGKILL', 'ffmpeg'], { detached: false, stdio: 'ignore' })
     killCommand.on('close', () => {
       self.log('Killed FFMPEG Processes')
       callback()

@@ -32,6 +32,7 @@ function FFMPEG(hap, cameraConfig, log, videoProcessor) {
   this.packetsize = ffmpegOpt.packetSize
   this.fps = ffmpegOpt.maxFPS || 10;
   this.maxBitrate = ffmpegOpt.maxBitrate || 300;
+  this.snapshotTimeout = ffmpegOpt.snapshotTimeout || 10 * 1000 // msec
   this.debug = ffmpegOpt.debug;
   this.additionalCommandline = ffmpegOpt.additionalCommandline || '-tune zerolatency';
 
@@ -41,7 +42,7 @@ function FFMPEG(hap, cameraConfig, log, videoProcessor) {
 
   this.ffmpegSource = ffmpegOpt.source;
   this.ffmpegImageSource = ffmpegOpt.stillImageSource;
-  
+
   this.services = [];
   this.streamControllers = [];
 
@@ -147,6 +148,10 @@ FFMPEG.prototype.handleSnapshotRequest = function(request, callback) {
   let resolution = request.width + 'x' + request.height;
   var imageSource = this.ffmpegImageSource !== undefined ? this.ffmpegImageSource : this.ffmpegSource;
   let ffmpeg = spawn(this.videoProcessor, (imageSource + ' -t 1 -s '+ resolution + ' -f image2 -').split(' '), {env: process.env});
+
+  // Set timeout to kill zombie possible process
+  setTimeout(() => { ffmpeg.kill('SIGKILL'); }, this.snapshotTimeout);
+
   var imageBuffer = Buffer(0);
   this.log("Snapshot from " + this.name + " at " + resolution);
   if(this.debug) console.log('ffmpeg '+imageSource + ' -t 1 -s '+ resolution + ' -f image2 -');
