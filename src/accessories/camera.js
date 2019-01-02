@@ -35,6 +35,7 @@ function FFMPEG(hap, cameraConfig, log, videoProcessor) {
   this.snapshotTimeout = ffmpegOpt.snapshotTimeout || 10 * 1000 // msec
   this.debug = ffmpegOpt.debug;
   this.additionalCommandline = ffmpegOpt.additionalCommandline || '-tune zerolatency';
+  this.vaapiDevice = ffmpegOpt.vaapiDevice;
 
   if (!ffmpegOpt.source) {
     throw new Error("Missing source for camera.");
@@ -293,16 +294,32 @@ FFMPEG.prototype.handleStreamRequest = function(request) {
         let audioKey = sessionInfo["audio_srtp"];
         let audioSsrc = sessionInfo["audio_ssrc"];
 
-        let ffmpegCommand = this.ffmpegSource + ' -map 0:0' +
-          ' -vcodec ' + vcodec +
-          ' -pix_fmt yuv420p' +
-          ' -r ' + fps +
-          ' -f rawvideo' +
-          ' ' + additionalCommandline +
-          ' -vf scale=' + width + ':' + height +
-          ' -b:v ' + vbitrate + 'k' +
-          ' -bufsize ' + vbitrate+ 'k' +
-          ' -maxrate '+ vbitrate + 'k' +
+        let ffmpegCommand;
+        if (this.vaapiDevice) {
+          ffmpegCommand =
+            '-hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device ' + this.vaapiDevice +
+            ' ' + this.ffmpegSource + ' -map 0:0' +
+            ' -f rawvideo' +
+            ' -c:v h264_vaapi -vf fps=' + fps + ',format=nv12|vaapi,hwupload,scale_vaapi=w=' + width + ':h=' + height +
+            // Profiles are required to make iOS/maCOS happy
+            ' -profile:v 578 -bf 0' +
+            ' ' + additionalCommandline +
+            ' -maxrate '+ vbitrate + 'k';
+        } else {
+          ffmpegCommand =
+            this.ffmpegSource + ' -map 0:0' +
+            ' -vcodec ' + vcodec +
+            ' -pix_fmt yuv420p' +
+            ' -r ' + fps +
+            ' -f rawvideo' +
+            ' ' + additionalCommandline +
+            ' -vf scale=' + width + ':' + height +
+            ' -b:v ' + vbitrate + 'k' +
+            ' -bufsize ' + vbitrate+ 'k' +
+            ' -maxrate '+ vbitrate + 'k';
+        }
+
+        ffmpegCommand +=
           ' -payload_type 99' +
           ' -ssrc ' + videoSsrc +
           ' -f rtp' +
@@ -340,15 +357,19 @@ FFMPEG.prototype.handleStreamRequest = function(request) {
           console.log("ffmpeg " + ffmpegCommand);
         }
 
-        // Always setup hook on stderr.
-        // Without this streaming stops within one to two minutes.
-        ffmpeg.stderr.on('data', function(data) {
+        let self = this;
+        ffmpeg.stdout.on('data', function(data) {
           // Do not log to the console if debugging is turned off
-          if(this.debug){
-            console.log(data.toString());
+          if(self.debug) {
+            self.log(data.toString());
           }
         });
-        let self = this;
+        ffmpeg.stderr.on('data', function(data) {
+          // Do not log to the console if debugging is turned off
+          if(self.debug) {
+            self.log(data.toString());
+          }
+        });
         ffmpeg.on('error', function(error){
             self.log("An error occurs while making stream request");
             self.debug ? self.log(error) : null;
