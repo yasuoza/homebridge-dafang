@@ -305,7 +305,7 @@ FFMPEG.prototype.handleStreamRequest = function(request) {
             ' -profile:v 578 -bf 0' +
             ' ' + additionalCommandline +
             ' -b:v ' + vbitrate + 'k' +
-            ' -bufsize ' + vbitrate+ 'k' +
+            ' -bufsize ' + vbitrate * 2 + 'k' +
             ' -maxrate '+ vbitrate + 'k';
         } else {
           ffmpegCommand =
@@ -317,7 +317,7 @@ FFMPEG.prototype.handleStreamRequest = function(request) {
             ' ' + additionalCommandline +
             ' -vf scale=' + width + ':' + height +
             ' -b:v ' + vbitrate + 'k' +
-            ' -bufsize ' + vbitrate+ 'k' +
+            ' -bufsize ' + vbitrate * 2 + 'k' +
             ' -maxrate '+ vbitrate + 'k';
         }
 
