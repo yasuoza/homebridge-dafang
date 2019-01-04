@@ -297,13 +297,15 @@ FFMPEG.prototype.handleStreamRequest = function(request) {
         let ffmpegCommand;
         if (this.vaapiDevice) {
           ffmpegCommand =
-            '-hwaccel vaapi -hwaccel_output_format vaapi -vaapi_device ' + this.vaapiDevice +
+            '-vaapi_device ' + this.vaapiDevice +
             ' ' + this.ffmpegSource + ' -map 0:0' +
             ' -f rawvideo' +
             ' -c:v h264_vaapi -vf fps=' + fps + ',format=nv12|vaapi,hwupload,scale_vaapi=w=' + width + ':h=' + height +
             // Profiles are required to make iOS/maCOS happy
             ' -profile:v 578 -bf 0' +
             ' ' + additionalCommandline +
+            ' -b:v ' + vbitrate + 'k' +
+            ' -bufsize ' + vbitrate+ 'k' +
             ' -maxrate '+ vbitrate + 'k';
         } else {
           ffmpegCommand =
