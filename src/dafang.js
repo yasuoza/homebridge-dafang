@@ -160,7 +160,7 @@ Dafang.prototype = {
 
           newCameraConfig.videoConfig = videoConfig
 
-          var cameraSource = new classTypes.camera(homebridge, newCameraConfig, self.log, 'ffmpeg')
+          var cameraSource = new classTypes.camera(homebridge, newCameraConfig, self.log, 'ffmpeg', this.mqttService)
           cameraAccessory.configureCameraSource(cameraSource)
           cameraStreams.push(cameraAccessory)
         }
